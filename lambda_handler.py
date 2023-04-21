@@ -10,8 +10,8 @@ cloudfront = boto3.client("cloudfront")
 
 def lambda_handler(event, context):
 
-    BASE_URL = "http://ovgme.vcsg8.com/"
-    distribution_id = "E2K6ZAF16Z79V0"
+    BASE_URL = "<REDACTED>"
+    distribution_id = "<REDACTED>"
 
     # Get the S3 bucket and object key from the event
     bucket = event["Records"][0]["s3"]["bucket"]["name"]
