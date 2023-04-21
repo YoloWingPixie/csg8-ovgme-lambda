@@ -90,7 +90,7 @@ def lambda_handler(event, context):
                     "description": f"**{mod_name}**",
                     "author": {
                         "name": "OvGME Lambda Handler",
-                        "url": "https://us-east-2.console.aws.amazon.com/lambda/home?region=us-east-2#/functions/csg8-ovgme-xml-generator"
+                        "url": "https://us-east-2.console.aws.amazon.com/lambda/home?region=us-east-2#/functions/<REDACTED>"
                     },
                     "fields": [
                         {
