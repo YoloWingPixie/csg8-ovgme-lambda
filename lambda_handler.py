@@ -4,14 +4,17 @@ import os
 import zipfile
 from io import BytesIO
 from urllib.parse import quote
+import urllib3
+from botocore.vendored import requests
 
 s3 = boto3.client("s3")
 cloudfront = boto3.client("cloudfront")
+WEBHOOK = "https://discord.com/api/webhooks/<REDACTED>"
 
 def lambda_handler(event, context):
 
     BASE_URL = "<REDACTED>"
-    distribution_id = "<REDACTED>"
+    distribution_id = "E2K<REDACTED>"
 
     # Get the S3 bucket and object key from the event
     bucket = event["Records"][0]["s3"]["bucket"]["name"]
@@ -74,6 +77,36 @@ def lambda_handler(event, context):
 
             # Invalidate the CloudFront cache for the mod file
             cloudfront.create_invalidation( DistributionId=distribution_id, InvalidationBatch={ 'Paths': { 'Quantity': 1, 'Items': [ f'/{quote(key)}' ] }, 'CallerReference': 'ovgme-mod-invalidation' } )
+
+            # Send a Discord notification about the mod being uploaded, including the mod name and version as fields in an embed message.
+            
+            data = {
+                "username" : "OvGME"
+            }
+            
+            data['embeds'] = [
+                {
+                    "title": "Mod Added or Changed",
+                    "description": f"**{mod_name}**",
+                    "author": {
+                        "name": "OvGME Lambda Handler",
+                        "url": "https://us-east-2.console.aws.amazon.com/lambda/home?region=us-east-2#/functions/csg8-ovgme-xml-generator"
+                    },
+                    "fields": [
+                        {
+                            "name": "Version",
+                            "value": f"{version_contents}"
+                        },
+                        {
+                            "name": "URL",
+                            "value": f"{BASE_URL + quote(key)}"
+                        },
+                    ]
+                }
+            ]
+
+            http = urllib3.PoolManager()
+            r = http.request('POST', WEBHOOK, headers={'Content-Type': 'application/json'}, body=json.dumps(data))
 
     else:
         print("The file is not a ZIP file.")
